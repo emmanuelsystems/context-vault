@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Play {
+  id          String      @id @default(uuid())
+  workspaceId String
+  name        String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  blocks      CoreBlock[]
+  runs        Run[]
+}
+
+model CoreBlock {
+  id    String @id @default(uuid())
+  name  String
+  plays Play[]
+}
+
+model Run {
+  id        String   @id @default(uuid())
+  status    String   @default("queued")
+  playId    String
+  play      Play     @relation(fields: [playId], references: [id])
+  createdAt DateTime @default(now())
+}
