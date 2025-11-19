@@ -1,5 +1,6 @@
 import express from 'express';
 import vaultRouter from './routes/vault';
+import mcpRouter from './mcp-server';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1', vaultRouter);
+app.use('/mcp', mcpRouter);
 
 if (process.env.NODE_ENV !== 'production') {
     app.listen(port, () => {
