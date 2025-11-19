@@ -97,6 +97,11 @@ const createMcpServer = () => {
     return server;
 };
 
+// Health check endpoint for MCP router
+router.get('/', (req: Request, res: Response) => {
+    res.status(200).json({ status: 'MCP Router Active' });
+});
+
 // SSE endpoint for MCP
 router.get('/sse', async (req: Request, res: Response) => {
     const server = createMcpServer();
