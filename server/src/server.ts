@@ -15,7 +15,10 @@ app.get('/', (req, res) => {
     });
 });
 
+// Mount API routes
 app.use('/api/v1', vaultRouter);
+
+// IMPORTANT: MCP router must be mounted last to prevent route conflicts
 app.use('/mcp', mcpRouter);
 
 if (process.env.NODE_ENV !== 'production') {
