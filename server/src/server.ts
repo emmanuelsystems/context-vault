@@ -6,6 +6,14 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: 'Context Vault API Operational',
+        version: '2.0'
+    });
+});
+
 app.use('/api/v1', vaultRouter);
 
 if (process.env.NODE_ENV !== 'production') {
