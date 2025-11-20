@@ -1,40 +1,25 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import ws from 'ws';
 
-// Configure WebSocket for local development and non-Edge environments
-neonConfig.webSocketConstructor = ws;
-
-// Declare global types for caching
+// Define global type for singleton pattern
 declare global {
+    // eslint-disable-next-line no-var
     var prisma: PrismaClient | undefined;
 }
 
-const prismaClientSingleton = () => {
-    const connectionString = process.env.DATABASE_URL;
+const connectionString = `${process.env.DATABASE_URL}`;
 
-    if (!connectionString) {
-        throw new Error('DATABASE_URL environment variable is not set');
-    }
+// Initialize the adapter with the connection string directly
+const adapter = new PrismaNeon({ connectionString });
 
-    // Create Neon connection pool
-    const pool = new Pool({ connectionString });
+// Implement the Singleton pattern
+const prisma = global.prisma || new PrismaClient({
+    adapter,
+    log: ['warn', 'error'],
+});
 
-    // Create Neon adapter
-    // Cast pool to any to avoid type mismatch between @neondatabase/serverless and @prisma/adapter-neon
-    const adapter = new PrismaNeon(pool as any);
-
-    // Return PrismaClient with adapter
-    return new PrismaClient({ adapter } as any);
-};
-
-// Use global singleton in development/serverless, create new instance if not cached
-const prisma = global.prisma ?? prismaClientSingleton();
-
-export default prisma;
-
-// Cache the client in global scope to maintain singleton across hot-reloads and serverless invocations
 if (process.env.NODE_ENV !== 'production') {
     global.prisma = prisma;
 }
+
+export const db = prisma;
